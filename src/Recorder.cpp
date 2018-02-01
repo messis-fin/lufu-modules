@@ -57,7 +57,8 @@ namespace lufu
         RecorderModule()
             : rack::Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
         {
-            meter_.dBInterval = 3;
+            meter_left_.dBInterval = 3;
+            meter_right_.dBInterval = 3;
         }
 
         void set_recording_time_label(rack::Label * label)
@@ -73,16 +74,12 @@ namespace lufu
 
         void vu_lights(float left, float right)
         {
-            meter_.setValue(left / 5.0);
+            meter_left_.setValue(left / 5.0);
+            meter_right_.setValue(right / 5.0);
             for (int l = 0; l < VU_METER_LIGHTS; l++)
             {
-                lights[l + VU_METER_LEFT_1].setBrightnessSmooth(meter_.getBrightness(VU_METER_LIGHTS - l));
-            }
-
-            meter_.setValue(right / 5.0);
-            for (int l = 0; l < VU_METER_LIGHTS; l++)
-            {
-                lights[l + VU_METER_RIGHT_1].setBrightnessSmooth(meter_.getBrightness(VU_METER_LIGHTS - l));
+                lights[l + VU_METER_LEFT_1].setBrightnessSmooth(meter_left_.getBrightness(VU_METER_LIGHTS - l));
+                lights[l + VU_METER_RIGHT_1].setBrightnessSmooth(meter_right_.getBrightness(VU_METER_LIGHTS - l));
             }
         }
 
@@ -126,13 +123,13 @@ namespace lufu
 
     private:
         std::string recording_time_{"00:00:00"};
-        std::chrono::time_point<std::chrono::system_clock> start_time_;
         rack::Label * recording_time_label_{nullptr};
         uint64_t ticks_{0};
         uint32_t seconds;
         std::string target_file_;
         std::unique_ptr<lufu::WavSink> sink_;
-        rack::VUMeter meter_;
+        rack::VUMeter meter_left_;
+        rack::VUMeter meter_right_;
     };
 
 
